@@ -168,4 +168,14 @@ public class UserServiceImpl implements UserService {
         }
         return true;
     }
+
+    @Override
+    public User getFollowers(String username) throws UserNotFoundException {
+        return getUserProfile(username);
+    }
+
+    @Override
+    public User getFollowing(String username) throws UserNotFoundException {
+        return getUserProfile(username);
+    }
 }

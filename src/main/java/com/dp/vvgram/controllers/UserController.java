@@ -94,13 +94,11 @@ public class UserController {
 
     @GetMapping("/followers/{username}")
     public FollowDto getFollowers(@PathVariable String username) throws UserNotFoundException {
-        return null;
-        //todo
+        return FollowDto.fromFollower(userService.getFollowers(username));
     }
 
     @GetMapping("/following/{username}")
     public FollowDto getFollowing(@PathVariable String username) throws UserNotFoundException {
-        return null;
-        //todo
+        return FollowDto.fromFollowing(userService.getFollowing(username));
     }
 }
