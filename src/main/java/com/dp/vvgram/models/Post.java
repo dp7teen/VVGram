@@ -1,9 +1,6 @@
 package com.dp.vvgram.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,12 +11,13 @@ import java.util.List;
 @Setter
 @Entity(name = "posts")
 public class Post extends BaseModel {
+    @Lob
     private String content;
     @ManyToOne
-    private User user;
-    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER)
+    private User author;
+    @OneToMany(mappedBy = "post")
     private List<Comment> comments;
-    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "post")
     private List<Like> likes;
     private Date timestamp;
 }
