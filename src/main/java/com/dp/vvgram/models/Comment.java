@@ -10,6 +10,8 @@ import lombok.Setter;
 @Entity(name = "comments")
 public class Comment extends BaseModel {
     private String text;
+    private String imageUrl;
+    private String gifUrl;
     @ManyToOne
     private Post post;
     @ManyToOne
