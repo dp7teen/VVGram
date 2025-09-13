@@ -19,7 +19,7 @@ public class User extends BaseModel {
     private String password;
     private String bio;
     private String profilePictureUrl;
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private List<Post> posts;
     @OneToMany(mappedBy = "following", fetch = FetchType.LAZY)
     private List<Follow> followers;

@@ -21,7 +21,7 @@ public class UserDto {
         userDto.setUsername(user.getUsername());
         userDto.setBio(user.getBio());
         userDto.setProfilePictureUrl(user.getProfilePictureUrl());
-        userDto.setPostCount(user.getPosts() != null ? user.getPosts().size() : 0);
+        userDto.setPostCount(user.getPosts().size());
         userDto.setFollowerCount(user.getFollowers().size());
         userDto.setFollowingCount(user.getFollowing().size());
         return userDto;
