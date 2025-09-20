@@ -4,6 +4,7 @@ import com.dp.vvgram.dtos.*;
 import com.dp.vvgram.exceptions.*;
 import com.dp.vvgram.models.User;
 import com.dp.vvgram.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    @Operation(summary = "User can signup here!  No restrictions implemented.")
     @PostMapping("/signup")
     public UserDto signUp(@RequestBody SignupRequestDto requestDto) throws UserAlreadyExistsException {
         User user = userService.signUp(
@@ -31,21 +33,25 @@ public class UserController {
         return UserDto.from(user);
     }
 
+    @Operation(summary = "User can login here!  Use the correct email and password while you signed up.")
     @PostMapping("/login")
-    public UserDto login(@RequestBody LoginRequestDto requestDto) throws UserNotFoundException, InvalidPasswordException {
-        User user = userService.login(
+    public TokenResponseDto login(@RequestBody LoginRequestDto requestDto) throws UserNotFoundException,
+            InvalidPasswordException {
+        String token = userService.login(
                 requestDto.getUsername(),
                 requestDto.getPassword()
         );
-        return UserDto.from(user);
+        return TokenResponseDto.from(token);
     }
 
+    @Operation(summary = "User can view any profile data using the corresponding username")
     @GetMapping("/user/{username}")
     public UserDto getUserProfile(@PathVariable String username) throws UserNotFoundException {
         User user = userService.getUserProfile(username);
         return UserDto.from(user);
     }
 
+    @Operation(summary = "User can search for Users with some username!")
     @GetMapping("/{username}")
     public ResponseEntity<List<UserDto>> getUserProfiles(@PathVariable String username) {
         List<User> users = userService.getUsers(username);
@@ -65,6 +71,7 @@ public class UserController {
         // Implementation for user logout
     }
 
+    @Operation(summary = "User can update their profile.  Enter only required fields remove the unnecessary fields before executing!")
     @PatchMapping("/update/{username}")
     public UserDto updateProfile(@PathVariable String username,
                                  @RequestBody UpdateProfileDto updateProfileDto)
@@ -73,6 +80,7 @@ public class UserController {
         return UserDto.from(user);
     }
 
+    @Operation(summary = "User can follow another user.  First enter current user, next user to be followed.")
     @PostMapping("/follow")
     public ResponseEntity<String> follow(@RequestParam("user") String userOne,
                                          @RequestParam("follow") String userTwo) throws UserNotFoundException, UserAlreadyFollowingUserException, UserCannotFollowUserException {
@@ -83,6 +91,7 @@ public class UserController {
         );
     }
 
+    @Operation(summary = "User can unfollow another user.  First enter current user, next user to be unfollowed.")
     @PostMapping("/unfollow")
     public ResponseEntity<String> unFollow(@RequestParam("user") String userOne,
                                            @RequestParam("unfollow") String userTwo) throws UserNotFoundException, UserCannotUnfollowUserException, UserIsNotFollowingUserException {
@@ -92,11 +101,13 @@ public class UserController {
         );
     }
 
+    @Operation(summary = "User can check their followers.")
     @GetMapping("/followers/{username}")
     public FollowDto getFollowers(@PathVariable String username) throws UserNotFoundException {
         return FollowDto.fromFollower(userService.getFollowers(username));
     }
 
+    @Operation(summary = "User can can check who they're following.")
     @GetMapping("/following/{username}")
     public FollowDto getFollowing(@PathVariable String username) throws UserNotFoundException {
         return FollowDto.fromFollowing(userService.getFollowing(username));

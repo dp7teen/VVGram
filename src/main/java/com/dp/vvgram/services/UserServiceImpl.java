@@ -7,7 +7,10 @@ import com.dp.vvgram.models.User;
 import com.dp.vvgram.profileUpdater.*;
 import com.dp.vvgram.repositories.FollowRepository;
 import com.dp.vvgram.repositories.UserRepository;
+import com.dp.vvgram.security.services.JwtHelper;
 import jakarta.transaction.Transactional;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,13 +25,16 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private List<UpdateProfile> fields;
     private final FollowRepository followRepository;
+    private final AuthenticationManager authenticationManager;
 
     public UserServiceImpl(UserRepository userRepository,
                            BCryptPasswordEncoder bCryptPasswordEncoder,
-                           FollowRepository followRepository) {
+                           FollowRepository followRepository,
+                           AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.followRepository = followRepository;
+        this.authenticationManager = authenticationManager;
     }
 
     @Override
@@ -53,16 +59,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User login(String username, String password) throws UserNotFoundException, InvalidPasswordException {
-        Optional<User> optionalUser = userRepository.findByUsername(username);
-        if (optionalUser.isEmpty()) {
-            throw new UserNotFoundException("User not found with username: " + username);
-        }
-        User user = optionalUser.get();
-        if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
-            throw new InvalidPasswordException("Invalid password");
-        }
-        return user;
+    public String login(String username, String password) throws UserNotFoundException, InvalidPasswordException {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        return JwtHelper.generateToken(username);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.dp.vvgram.contollerAdvices;
 
 import com.dp.vvgram.dtos.ExceptionDto;
 import com.dp.vvgram.exceptions.*;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -66,6 +67,16 @@ public class GeneralExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionDto> handleException(Exception e) {
+        return exceptionWrapper(e, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ExceptionDto> handleAccessDeniedException(AccessDeniedException e) {
+        return exceptionWrapper(e, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ExceptionDto> handleExpiredJwtException(ExpiredJwtException e) {
         return exceptionWrapper(e, HttpStatus.BAD_REQUEST);
     }
 
