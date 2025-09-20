@@ -29,7 +29,7 @@ public class FeedDto {
             feedDto.setAuthor(userDto);
             feedDto.setLikesCount(post.getLikes().size());
             feedDto.setCommentsCount(post.getComments().size());
-            feedDto.setTime(post.getTimestamp());
+            feedDto.setTime(post.getCreatedAt());
             feedDtos.add(feedDto);
         }
         return feedDtos;

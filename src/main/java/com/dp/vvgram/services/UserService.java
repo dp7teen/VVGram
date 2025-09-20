@@ -12,7 +12,7 @@ import java.util.List;
 public interface UserService {
     User signUp(String username, String password, String email) throws UserAlreadyExistsException;
 
-    User login(String username, String password) throws UserNotFoundException, InvalidPasswordException;
+    String login(String username, String password) throws UserNotFoundException, InvalidPasswordException;
 
     User getUserProfile(String username) throws UserNotFoundException;
 
