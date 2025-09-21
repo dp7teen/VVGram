@@ -11,12 +11,17 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/feed/home")
+@RequestMapping("/api/feed/")
 public class FeedController {
     private final FeedService feedService;
 
     public FeedController(FeedService feedService) {
         this.feedService = feedService;
+    }
+
+    @GetMapping("/home")
+    public String afterLogin() {
+        return "Login Successful!";
     }
 
     @GetMapping("/{username}")

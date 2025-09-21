@@ -1,5 +1,6 @@
 package com.dp.vvgram.services;
 
+import com.dp.vvgram.dtos.PostDto;
 import com.dp.vvgram.dtos.PostRequestDto;
 import com.dp.vvgram.exceptions.PostNotFoundException;
 import com.dp.vvgram.exceptions.PostingServiceNotAvailableException;
@@ -12,6 +13,10 @@ import com.dp.vvgram.repositories.UserRepository;
 import com.dp.vvgram.services.postEditor.ContentEditor;
 import com.dp.vvgram.services.postEditor.PostEditor;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -97,9 +102,26 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public List<Post> getPostsByUser(String username) throws UserNotFoundException {
+    public Page<PostDto> getPostsByUser(String username,
+                                        int pageNo,
+                                        int pageSize,
+                                        List<String> sortBy) throws UserNotFoundException {
         getUser(username);
-        return postRepository.findByAuthor_Username(username);
+        List<Sort.Order> orderBy = sortBy.stream()
+                .map(s -> {
+                    String[] parts = s.split(",");
+                    String field = parts[0];
+                    Sort.Direction direction = parts.length > 1 && parts[1].equals("asc")
+                            ? Sort.Direction.ASC : Sort.Direction.DESC;
+                    return new Sort.Order(direction, field);
+                })
+                .toList();
+
+        Page<Post> postPages = postRepository.findByAuthor_UsernameContaining(username,
+                PageRequest.of(pageNo, pageSize).withSort(Sort.by(orderBy)));
+        List<PostDto> posts = PostDto.from(postPages.getContent());
+
+        return new PageImpl<>(posts, postPages.getPageable(), postPages.getTotalElements());
     }
 
     @Override

@@ -18,7 +18,7 @@ public class BaseModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @CreatedDate
-    private Date CreatedAt;
+    private Date createdAt;
     @LastModifiedDate
     private Date lastModifiedAt;
 }
