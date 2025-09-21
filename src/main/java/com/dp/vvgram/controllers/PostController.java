@@ -1,5 +1,6 @@
 package com.dp.vvgram.controllers;
 
+import com.dp.vvgram.dtos.GetPostsDto;
 import com.dp.vvgram.dtos.PostDto;
 import com.dp.vvgram.dtos.PostRequestDto;
 import com.dp.vvgram.exceptions.PostNotFoundException;
@@ -7,6 +8,7 @@ import com.dp.vvgram.exceptions.PostingServiceNotAvailableException;
 import com.dp.vvgram.exceptions.UserNotFoundException;
 import com.dp.vvgram.models.Post;
 import com.dp.vvgram.services.PostService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
-public class PostController {
+public class    PostController {
     private final PostService postService;
 
     public PostController(PostService postService) {
@@ -48,10 +50,10 @@ public class PostController {
         );
     }
 
-    @GetMapping("/{username}")
-    public List<PostDto> getPostsByUser(@PathVariable String username) throws UserNotFoundException {
-        List<Post> posts = postService.getPostsByUser(username);
-        return PostDto.from(posts);
+    @PostMapping
+    public Page<PostDto> getPostsByUser(@RequestBody GetPostsDto getPostsDto) throws UserNotFoundException {
+        return postService.getPostsByUser(getPostsDto.getUsername(),
+                getPostsDto.getPageNo(), getPostsDto.getPageSize(), getPostsDto.getSortBy());
     }
 
     @GetMapping("/{username}/{id}")

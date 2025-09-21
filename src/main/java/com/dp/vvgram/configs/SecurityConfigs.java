@@ -39,6 +39,7 @@ public class SecurityConfigs {
                         .requestMatchers(HttpMethod.POST, "api/users/signup").permitAll()
                         .requestMatchers(HttpMethod.POST, "api/users/login").permitAll()
                         .anyRequest().authenticated())
+//                .formLogin(form -> form.permitAll().defaultSuccessUrl("/api/feed/home"))
                 .authenticationManager(authenticationManager)
 
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
