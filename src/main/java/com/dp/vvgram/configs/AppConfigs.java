@@ -5,6 +5,8 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
@@ -25,5 +27,13 @@ public class AppConfigs {
                                 .name("Deviprasath")
                                 .email("deviprasath17@gmail.com")
                                 .url("https://github.com/dp7teen")));
+    }
+
+    @Bean
+    RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
+
+        RedisTemplate<String, String> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+        return template;
     }
 }

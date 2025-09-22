@@ -2,11 +2,13 @@ package com.dp.vvgram.controllers;
 
 import com.dp.vvgram.dtos.CommentDto;
 import com.dp.vvgram.dtos.CommentRequestDto;
+import com.dp.vvgram.dtos.ShowCommentsDto;
 import com.dp.vvgram.exceptions.CommentNotFoundException;
 import com.dp.vvgram.exceptions.PostNotFoundException;
 import com.dp.vvgram.exceptions.UserNotFoundException;
 import com.dp.vvgram.models.Comment;
 import com.dp.vvgram.services.CommentService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,9 +53,9 @@ public class CommentController {
         );
     }
 
-    @GetMapping("/{postId}")
-    public List<CommentDto> getComments(@PathVariable long postId) throws PostNotFoundException {
-        List<Comment> comments = commentService.getComments(postId);
-        return CommentDto.from(comments);
+    @PostMapping
+    public Page<CommentDto> getComments(@RequestBody ShowCommentsDto dto) throws PostNotFoundException {
+        return (Page<CommentDto>) commentService.getComments(dto.getPostid(),
+                dto.getPageno(), dto.getPagesize(), dto.getSortBy());
     }
 }

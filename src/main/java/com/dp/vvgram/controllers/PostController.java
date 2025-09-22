@@ -53,7 +53,7 @@ public class    PostController {
     @PostMapping
     public Page<PostDto> getPostsByUser(@RequestBody GetPostsDto getPostsDto) throws UserNotFoundException {
         return postService.getPostsByUser(getPostsDto.getUsername(),
-                getPostsDto.getPageNo(), getPostsDto.getPageSize(), getPostsDto.getSortBy());
+                getPostsDto.getPageno(), getPostsDto.getPagesize(), getPostsDto.getSortBy());
     }
 
     @GetMapping("/{username}/{id}")

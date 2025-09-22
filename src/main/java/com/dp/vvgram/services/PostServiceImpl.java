@@ -6,6 +6,7 @@ import com.dp.vvgram.exceptions.PostNotFoundException;
 import com.dp.vvgram.exceptions.PostingServiceNotAvailableException;
 import com.dp.vvgram.exceptions.UserNotFoundException;
 import com.dp.vvgram.factory.PostUploadFactory;
+import com.dp.vvgram.helpers.OrderByHelper;
 import com.dp.vvgram.models.Post;
 import com.dp.vvgram.models.User;
 import com.dp.vvgram.repositories.PostRepository;
@@ -107,15 +108,7 @@ public class PostServiceImpl implements PostService{
                                         int pageSize,
                                         List<String> sortBy) throws UserNotFoundException {
         getUser(username);
-        List<Sort.Order> orderBy = sortBy.stream()
-                .map(s -> {
-                    String[] parts = s.split(",");
-                    String field = parts[0];
-                    Sort.Direction direction = parts.length > 1 && parts[1].equals("asc")
-                            ? Sort.Direction.ASC : Sort.Direction.DESC;
-                    return new Sort.Order(direction, field);
-                })
-                .toList();
+        List<Sort.Order> orderBy = OrderByHelper.orderBy(sortBy);
 
         Page<Post> postPages = postRepository.findByAuthor_UsernameContaining(username,
                 PageRequest.of(pageNo, pageSize).withSort(Sort.by(orderBy)));

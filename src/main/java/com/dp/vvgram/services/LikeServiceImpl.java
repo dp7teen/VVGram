@@ -1,8 +1,10 @@
 package com.dp.vvgram.services;
 
+import com.dp.vvgram.dtos.LikeUserDto;
 import com.dp.vvgram.exceptions.LikeNotFoundException;
 import com.dp.vvgram.exceptions.PostNotFoundException;
 import com.dp.vvgram.exceptions.UserNotFoundException;
+import com.dp.vvgram.helpers.OrderByHelper;
 import com.dp.vvgram.models.Like;
 import com.dp.vvgram.models.Post;
 import com.dp.vvgram.models.User;
@@ -10,6 +12,10 @@ import com.dp.vvgram.repositories.LikeRepository;
 import com.dp.vvgram.repositories.PostRepository;
 import com.dp.vvgram.repositories.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -93,8 +99,14 @@ public class LikeServiceImpl implements LikeService{
     }
 
     @Override
-    public List<Like> getLikes(long postId) throws PostNotFoundException {
+    public Page<LikeUserDto> getLikes(long postId, int pageno, int pagesize,
+                                      List<String> sortBy) throws PostNotFoundException {
         getPost(postId);
-        return likeRepository.findAllByPost_Id(postId);
+        List<Sort.Order> orders = OrderByHelper.orderBy(sortBy);
+
+        Page<Like> likePaged = likeRepository.findAllByPost_Id(postId,
+                PageRequest.of(pageno, pagesize).withSort(Sort.by(orders)));
+        List<LikeUserDto> likeUserDtos = LikeUserDto.from(likePaged.getContent());
+        return new PageImpl<>(likeUserDtos, likePaged.getPageable(), likePaged.getTotalElements());
     }
 }
