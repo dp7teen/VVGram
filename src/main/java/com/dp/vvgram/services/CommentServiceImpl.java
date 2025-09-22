@@ -1,10 +1,12 @@
 package com.dp.vvgram.services;
 
+import com.dp.vvgram.dtos.CommentDto;
 import com.dp.vvgram.dtos.CommentRequestDto;
 import com.dp.vvgram.exceptions.CommentNotFoundException;
 import com.dp.vvgram.exceptions.PostNotFoundException;
 import com.dp.vvgram.exceptions.UserNotFoundException;
 import com.dp.vvgram.factory.CommentStrategyFactory;
+import com.dp.vvgram.helpers.OrderByHelper;
 import com.dp.vvgram.models.Comment;
 import com.dp.vvgram.models.Post;
 import com.dp.vvgram.repositories.CommentRepository;
@@ -15,6 +17,10 @@ import com.dp.vvgram.services.commentEditor.ImageEditor;
 import com.dp.vvgram.services.commentEditor.TextEditor;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -92,12 +98,18 @@ public class CommentServiceImpl implements CommentService{
     }
 
     @Override
-    public List<Comment> getComments(long postId) throws PostNotFoundException {
+    public Page<CommentDto> getComments(long postId, int pageNo,
+                                        int pageSize, List<String> sortBy) throws PostNotFoundException {
         Optional<Post> optionalPost = postRepository.findById(postId);
         if (optionalPost.isEmpty()) {
             throw new PostNotFoundException("Post with " + postId + " is not found");
         }
-        return commentRepository.findByPost_Id(postId);
+        List<Sort.Order> orders = OrderByHelper.orderBy(sortBy);
+
+        Page<Comment> commentsPaged = commentRepository.findByPost_Id(postId,
+                PageRequest.of(pageNo, pageSize).withSort(Sort.by(orders)));
+        List<CommentDto> comments = CommentDto.from(commentsPaged.getContent());
+        return new PageImpl<>(comments, commentsPaged.getPageable(), commentsPaged.getTotalElements());
     }
 
     private void initiateCommentEditors() {

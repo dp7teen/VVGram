@@ -1,7 +1,9 @@
 package com.dp.vvgram.services;
 
 import com.dp.vvgram.dtos.UpdateProfileDto;
+import com.dp.vvgram.dtos.UserDto;
 import com.dp.vvgram.exceptions.*;
+import com.dp.vvgram.helpers.OrderByHelper;
 import com.dp.vvgram.models.Follow;
 import com.dp.vvgram.models.User;
 import com.dp.vvgram.profileUpdater.*;
@@ -9,6 +11,10 @@ import com.dp.vvgram.repositories.FollowRepository;
 import com.dp.vvgram.repositories.UserRepository;
 import com.dp.vvgram.security.services.JwtHelper;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -102,8 +108,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getUsers(String username) {
-        return userRepository.findAllByUsernameContainingIgnoreCase(username);
+    public Page<UserDto> getUsers(String username, int pageNo, int pageSize, List<String> sortBy) {
+        List<Sort.Order> orders = OrderByHelper.orderBy(sortBy);
+
+        Page<User> usersPaged = userRepository.findAllByUsernameContainingIgnoreCase(username,
+                PageRequest.of(pageNo, pageSize).withSort(Sort.by(orders)));
+
+        List<UserDto> users = new ArrayList<>();
+        for (User user : usersPaged.getContent()) {
+            users.add(UserDto.from(user));
+        }
+        return new PageImpl<>(users, usersPaged.getPageable(), usersPaged.getTotalElements());
     }
 
     @Override

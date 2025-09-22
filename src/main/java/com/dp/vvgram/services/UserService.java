@@ -1,9 +1,11 @@
 package com.dp.vvgram.services;
 
 import com.dp.vvgram.dtos.UpdateProfileDto;
+import com.dp.vvgram.dtos.UserDto;
 import com.dp.vvgram.exceptions.*;
 import com.dp.vvgram.models.User;
 import com.dp.vvgram.profileUpdater.UpdateProfile;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +22,7 @@ public interface UserService {
 
     User updateProfile(String user, UpdateProfileDto profile) throws UserNotFoundException;
 
-    List<User> getUsers(String username);
+    Page<UserDto> getUsers(String username, int pageNo, int pageSize, List<String> sortBy);
 
     String follow(String userOne, String userTwo) throws UserNotFoundException, UserAlreadyFollowingUserException, UserCannotFollowUserException;
 

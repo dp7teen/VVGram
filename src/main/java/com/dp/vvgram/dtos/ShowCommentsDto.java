@@ -1,22 +1,19 @@
 package com.dp.vvgram.dtos;
 
-import com.dp.vvgram.models.Post;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Getter
 @Setter
-public class GetPostsDto extends BasePagingDto{
-    private String username;
+public class ShowCommentsDto extends BasePagingDto {
+    private Long postid;
     private List<String> sortBy;
 
-    public GetPostsDto() {
+    public ShowCommentsDto() {
         super.setPageno(0);
         super.setPagesize(3);
         sortBy = List.of("createdAt,desc");
     }
-
 }

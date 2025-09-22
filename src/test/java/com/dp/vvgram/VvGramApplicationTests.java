@@ -19,17 +19,17 @@ class VvGramApplicationTests {
     void contextLoads() {
     }
 
-    @Test
-    void getAllUsers() {
-        List<User> users = userService.getUsers("devvi");
-        List<UserDto> userDtos = new ArrayList<>();
-        if (!users.isEmpty()) {
-            for (User user : users) {
-                userDtos.add(UserDto.from(user));
-            }
-        }
-
-        System.out.println(userDtos);
-    }
+//    @Test
+//    void getAllUsers() {
+//        List<User> users = userService.getUsers("devvi");
+//        List<UserDto> userDtos = new ArrayList<>();
+//        if (!users.isEmpty()) {
+//            for (User user : users) {
+//                userDtos.add(UserDto.from(user));
+//            }
+//        }
+//
+//        System.out.println(userDtos);
+//    }
 
 }

@@ -5,6 +5,7 @@ import com.dp.vvgram.exceptions.*;
 import com.dp.vvgram.models.User;
 import com.dp.vvgram.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,17 +53,12 @@ public class UserController {
     }
 
     @Operation(summary = "User can search for Users with some username!")
-    @GetMapping("/{username}")
-    public ResponseEntity<List<UserDto>> getUserProfiles(@PathVariable String username) {
-        List<User> users = userService.getUsers(username);
-        List<UserDto> userDtos = new ArrayList<>();
-        if (!users.isEmpty()) {
-            for (User user : users) {
-                userDtos.add(UserDto.from(user));
-            }
-        }
+    @PostMapping
+    public ResponseEntity<Page<UserDto>> getUserProfiles(@RequestBody SearchUserDto dto) {
+        Page<UserDto> users = userService.getUsers(dto.getUsername(), dto.getPageno(),
+                dto.getPagesize(),dto.getSortBy());
         return new ResponseEntity<>(
-                userDtos, HttpStatus.OK
+                users, HttpStatus.OK
         );
     }
 
