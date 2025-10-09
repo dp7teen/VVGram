@@ -18,38 +18,38 @@ VVGram provides the foundational backend for a social media application, includi
 
 ## Endpoints 🚀
 **UserController (/api/users):** 👥
-POST /signup — User signup
-POST /login — User login
-GET /user/{username} — Get user profile by username
-POST / — Search users (with body)
-POST /logout/{token} — Logout user
-PATCH /update/{username} — Update user profile
-POST /follow?user={userOne}&follow={userTwo} — Follow a user
-POST /unfollow?user={userOne}&unfollow={userTwo} — Unfollow a user
-GET /followers/{username} — Get followers of a user
-GET /following/{username} — Get users followed by a user
+- POST /signup — User signup
+- POST /login — User login
+- GET /user/{username} — Get user profile by username
+- POST / — Search users (with body)
+- POST /logout/{token} — Logout user
+- PATCH /update/{username} — Update user profile
+- POST /follow?user={userOne}&follow={userTwo} — Follow a user
+- POST /unfollow?user={userOne}&unfollow={userTwo} — Unfollow a user
+- GET /followers/{username} — Get followers of a user
+- GET /following/{username} — Get users followed by a user
 
 **PostController (/api/posts):** 💬
-POST /{username} — Upload a post
-PATCH /edit/{username}/{postId} — Edit a post
-DELETE /delete/{username}/{id} — Delete a post
-POST / — Get posts by user (with body)
-GET /{username}/{id} — Get a post by id
+- POST /{username} — Upload a post
+- PATCH /edit/{username}/{postId} — Edit a post
+- DELETE /delete/{username}/{id} — Delete a post
+- POST / — Get posts by user (with body)
+- GET /{username}/{id} — Get a post by id
 
 **CommentController (/api/comments):** 💬
-POST /{postId}/{username} — Add a comment to a post
-DELETE /{postId}/{commentId} — Delete a comment
-PATCH /{commentId} — Edit a comment
-POST / — Get comments for a post (with body)
+- POST /{postId}/{username} — Add a comment to a post
+- DELETE /{postId}/{commentId} — Delete a comment
+- PATCH /{commentId} — Edit a comment
+- POST / — Get comments for a post (with body)
 
 **LikeController (/api/likes):** ❤️
-POST /like/{postId}/{username} — Like a post
-POST /unlike/{postId}/{username} — Unlike a post
-POST / — Get likes for a post (with body)
+- POST /like/{postId}/{username} — Like a post
+- POST /unlike/{postId}/{username} — Unlike a post
+- POST / — Get likes for a post (with body)
 
 **FeedController (/api/feed/):** 🌐
-GET /home — After login message
-GET /{username} — Get posts for a user feed
+- GET /home — After login message
+- GET /{username} — Get posts for a user feed
 
 ## Future Implementation
 - Add detailed REST API endpoints and documentation.
