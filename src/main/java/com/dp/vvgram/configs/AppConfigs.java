@@ -3,6 +3,8 @@ package com.dp.vvgram.configs;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -35,5 +37,10 @@ public class AppConfigs {
         RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         return template;
+    }
+
+    @Bean
+    public ChatClient getChatClient(ChatClient.Builder builder) {
+        return builder.build();
     }
 }
