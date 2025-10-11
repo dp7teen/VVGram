@@ -1,9 +1,6 @@
 package com.dp.vvgram.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,4 +22,6 @@ public class User extends BaseModel {
     private List<Follow> followers;
     @OneToMany(mappedBy = "follower", fetch = FetchType.LAZY)
     private List<Follow> following;
+    @OneToOne(mappedBy = "user")
+    private BotChat botChat;
 }
