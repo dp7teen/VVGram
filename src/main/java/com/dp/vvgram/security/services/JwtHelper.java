@@ -20,10 +20,10 @@ public class JwtHelper {
     private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private static final int MINUTES = 60;
 
-    public static String generateToken(String email) {
+    public static String generateToken(String userName) {
         var now = Instant.now();
         return Jwts.builder()
-                .subject(email)
+                .subject(userName)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(MINUTES, ChronoUnit.MINUTES)))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)

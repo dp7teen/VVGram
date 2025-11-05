@@ -5,9 +5,13 @@ import com.dp.vvgram.exceptions.*;
 import com.dp.vvgram.models.User;
 import com.dp.vvgram.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -46,9 +50,11 @@ public class UserController {
     }
 
     @Operation(summary = "User can view any profile data using the corresponding username")
-    @GetMapping("/user/{username}")
-    public UserDto getUserProfile(@PathVariable String username) throws UserNotFoundException {
-        User user = userService.getUserProfile(username);
+    @GetMapping("/user")
+    public UserDto getUserProfile() throws UserNotFoundException {
+        UserDetails details = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        User user = userService.getUserProfile(details.getUsername());
         return UserDto.from(user);
     }
 
