@@ -4,10 +4,15 @@ import com.dp.vvgram.dtos.*;
 import com.dp.vvgram.exceptions.*;
 import com.dp.vvgram.models.User;
 import com.dp.vvgram.services.UserService;
+import com.dp.vvgram.utilities.PrincipalHelper;
 import io.swagger.v3.oas.annotations.Operation;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -45,10 +50,11 @@ public class UserController {
         return TokenResponseDto.from(token);
     }
 
-    @Operation(summary = "User can view any profile data using the corresponding username")
-    @GetMapping("/user/{username}")
-    public UserDto getUserProfile(@PathVariable String username) throws UserNotFoundException {
-        User user = userService.getUserProfile(username);
+    @Operation(summary = "User can view their profile data.")
+    @GetMapping("/user") //todo: check here itself.  by sending request.
+    public UserDto getUserProfile() throws UserNotFoundException {
+        UserDetails details = PrincipalHelper.getPrincipal();
+        User user = userService.getUserProfile(details.getUsername());
         return UserDto.from(user);
     }
 
@@ -68,44 +74,10 @@ public class UserController {
     }
 
     @Operation(summary = "User can update their profile.  Enter only required fields remove the unnecessary fields before executing!")
-    @PatchMapping("/update/{username}")
-    public UserDto updateProfile(@PathVariable String username,
-                                 @RequestBody UpdateProfileDto updateProfileDto)
-    throws UserNotFoundException{
-        User user = userService.updateProfile(username, updateProfileDto);
+    @PatchMapping("/update")
+    public UserDto updateProfile(@RequestBody UpdateProfileDto updateProfileDto) throws UserNotFoundException{
+        UserDetails details = PrincipalHelper.getPrincipal();
+        User user = userService.updateProfile(details.getUsername(), updateProfileDto);
         return UserDto.from(user);
-    }
-
-    @Operation(summary = "User can follow another user.  First enter current user, next user to be followed.")
-    @PostMapping("/follow")
-    public ResponseEntity<String> follow(@RequestParam("user") String userOne,
-                                         @RequestParam("follow") String userTwo) throws UserNotFoundException, UserAlreadyFollowingUserException, UserCannotFollowUserException {
-        String message = userService.follow(userOne, userTwo);
-        return new ResponseEntity<>(
-                message ,
-                HttpStatus.OK
-        );
-    }
-
-    @Operation(summary = "User can unfollow another user.  First enter current user, next user to be unfollowed.")
-    @PostMapping("/unfollow")
-    public ResponseEntity<String> unFollow(@RequestParam("user") String userOne,
-                                           @RequestParam("unfollow") String userTwo) throws UserNotFoundException, UserCannotUnfollowUserException, UserIsNotFollowingUserException {
-        return new ResponseEntity<>(
-                userService.unFollow(userOne, userTwo),
-                HttpStatus.OK
-        );
-    }
-
-    @Operation(summary = "User can check their followers.")
-    @GetMapping("/followers/{username}")
-    public FollowDto getFollowers(@PathVariable String username) throws UserNotFoundException {
-        return FollowDto.fromFollower(userService.getFollowers(username));
-    }
-
-    @Operation(summary = "User can can check who they're following.")
-    @GetMapping("/following/{username}")
-    public FollowDto getFollowing(@PathVariable String username) throws UserNotFoundException {
-        return FollowDto.fromFollowing(userService.getFollowing(username));
     }
 }
