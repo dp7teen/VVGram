@@ -4,6 +4,7 @@ import com.dp.vvgram.dtos.*;
 import com.dp.vvgram.exceptions.*;
 import com.dp.vvgram.models.User;
 import com.dp.vvgram.services.UserService;
+import com.dp.vvgram.utilities.PrincipalHelper;
 import io.swagger.v3.oas.annotations.Operation;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.data.domain.Page;
@@ -49,11 +50,10 @@ public class UserController {
         return TokenResponseDto.from(token);
     }
 
-    @Operation(summary = "User can view any profile data using the corresponding username")
+    @Operation(summary = "User can view their profile data.")
     @GetMapping("/user") //todo: check here itself.  by sending request.
     public UserDto getUserProfile() throws UserNotFoundException {
-        UserDetails details = (UserDetails) SecurityContextHolder.getContext()
-                .getAuthentication().getPrincipal();
+        UserDetails details = PrincipalHelper.getPrincipal();
         User user = userService.getUserProfile(details.getUsername());
         return UserDto.from(user);
     }
@@ -74,11 +74,10 @@ public class UserController {
     }
 
     @Operation(summary = "User can update their profile.  Enter only required fields remove the unnecessary fields before executing!")
-    @PatchMapping("/update/{username}")
-    public UserDto updateProfile(@PathVariable String username,
-                                 @RequestBody UpdateProfileDto updateProfileDto)
-    throws UserNotFoundException{
-        User user = userService.updateProfile(username, updateProfileDto);
+    @PatchMapping("/update")
+    public UserDto updateProfile(@RequestBody UpdateProfileDto updateProfileDto) throws UserNotFoundException{
+        UserDetails details = PrincipalHelper.getPrincipal();
+        User user = userService.updateProfile(details.getUsername(), updateProfileDto);
         return UserDto.from(user);
     }
 }
