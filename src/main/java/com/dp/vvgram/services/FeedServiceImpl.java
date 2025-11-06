@@ -27,15 +27,7 @@ public class FeedServiceImpl implements FeedService {
         User user = userService.getUserProfile(username);
 
         List<Post> posts = postRepository.findPostsByCurrentUser(user.getId());
-//        PriorityQueue<Post> mostRecentOrder = new PriorityQueue<>(
-//                (a,b) -> b.getCreatedAt().compareTo(a.getCreatedAt())
-//        );
-//
-//        mostRecentOrder.addAll(posts);
-//        posts.clear();
-//        while(!mostRecentOrder.isEmpty()) {
-//            posts.add(mostRecentOrder.remove());
-//        }
+
         Collections.sort(posts, (a,b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
         return posts;
     }
