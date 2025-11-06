@@ -15,12 +15,14 @@ import com.dp.vvgram.services.commentEditor.CommentEditor;
 import com.dp.vvgram.services.commentEditor.GifEditor;
 import com.dp.vvgram.services.commentEditor.ImageEditor;
 import com.dp.vvgram.services.commentEditor.TextEditor;
+import com.dp.vvgram.utilities.PrincipalHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -50,6 +52,11 @@ public class CommentServiceImpl implements CommentService{
         return optionalComment.get();
     }
 
+    private boolean isValidUser(Comment comment) {
+        UserDetails details = PrincipalHelper.getPrincipal();
+        return details.getUsername().equals(comment.getUser().getUsername());
+    }
+
     public Comment getCommentById(long commentId) throws CommentNotFoundException {
         Optional<Comment> optionalComment = commentRepository.findById(commentId);
         if (optionalComment.isEmpty()) {
@@ -63,6 +70,9 @@ public class CommentServiceImpl implements CommentService{
     public String uncomment(long postId, long commentId) throws CommentNotFoundException, UserNotFoundException, PostNotFoundException {
         Comment comment = getCommentById(commentId);
 
+        if (!isValidUser(comment)) {
+            throw new UserNotFoundException("You are not authorized to delete this comment!");
+        }
         Optional<Post> optionalPost = postRepository.findById(postId);
         if (optionalPost.isEmpty()) {
             throw new PostNotFoundException("Post with " + postId + " is not found");
@@ -79,6 +89,9 @@ public class CommentServiceImpl implements CommentService{
     public String editComment(long commentId, CommentRequestDto dto) throws UserNotFoundException, CommentNotFoundException {
         Comment comment = getCommentById(commentId);
 
+        if (!isValidUser(comment)) {
+            throw new UserNotFoundException("You are not authorized to edit this comment!");
+        }
         initiateCommentEditors();
         for (CommentEditor commentEditor : commentEditors) {
             commentEditor.editComment(dto, comment);
