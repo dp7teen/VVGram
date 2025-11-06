@@ -50,7 +50,7 @@ public class UserController {
     }
 
     @Operation(summary = "User can view any profile data using the corresponding username")
-    @GetMapping("/user")
+    @GetMapping("/user") //todo: check here itself.  by sending request.
     public UserDto getUserProfile() throws UserNotFoundException {
         UserDetails details = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
@@ -80,38 +80,5 @@ public class UserController {
     throws UserNotFoundException{
         User user = userService.updateProfile(username, updateProfileDto);
         return UserDto.from(user);
-    }
-
-    @Operation(summary = "User can follow another user.  First enter current user, next user to be followed.")
-    @PostMapping("/follow")
-    public ResponseEntity<String> follow(@RequestParam("user") String userOne,
-                                         @RequestParam("follow") String userTwo) throws UserNotFoundException, UserAlreadyFollowingUserException, UserCannotFollowUserException {
-        String message = userService.follow(userOne, userTwo);
-        return new ResponseEntity<>(
-                message ,
-                HttpStatus.OK
-        );
-    }
-
-    @Operation(summary = "User can unfollow another user.  First enter current user, next user to be unfollowed.")
-    @PostMapping("/unfollow")
-    public ResponseEntity<String> unFollow(@RequestParam("user") String userOne,
-                                           @RequestParam("unfollow") String userTwo) throws UserNotFoundException, UserCannotUnfollowUserException, UserIsNotFollowingUserException {
-        return new ResponseEntity<>(
-                userService.unFollow(userOne, userTwo),
-                HttpStatus.OK
-        );
-    }
-
-    @Operation(summary = "User can check their followers.")
-    @GetMapping("/followers/{username}")
-    public FollowDto getFollowers(@PathVariable String username) throws UserNotFoundException {
-        return FollowDto.fromFollower(userService.getFollowers(username));
-    }
-
-    @Operation(summary = "User can can check who they're following.")
-    @GetMapping("/following/{username}")
-    public FollowDto getFollowing(@PathVariable String username) throws UserNotFoundException {
-        return FollowDto.fromFollowing(userService.getFollowing(username));
     }
 }
