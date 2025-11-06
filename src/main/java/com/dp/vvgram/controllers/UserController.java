@@ -6,6 +6,7 @@ import com.dp.vvgram.models.User;
 import com.dp.vvgram.services.UserService;
 import com.dp.vvgram.utilities.PrincipalHelper;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -68,9 +70,13 @@ public class UserController {
         );
     }
 
-    @PostMapping("/logout/{token}")
-    public void logout(@PathVariable String token) {
-        // Implementation for user logout
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout() throws AccessDeniedException {
+        String message = userService.logout();
+        return new ResponseEntity<>(
+                message,
+                HttpStatus.OK
+        );
     }
 
     @Operation(summary = "User can update their profile.  Enter only required fields remove the unnecessary fields before executing!")

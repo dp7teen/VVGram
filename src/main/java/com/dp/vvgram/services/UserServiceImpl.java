@@ -5,11 +5,14 @@ import com.dp.vvgram.dtos.UserDto;
 import com.dp.vvgram.exceptions.*;
 import com.dp.vvgram.helpers.OrderByHelper;
 import com.dp.vvgram.models.Follow;
+import com.dp.vvgram.models.Token;
 import com.dp.vvgram.models.User;
 import com.dp.vvgram.profileUpdater.*;
 import com.dp.vvgram.repositories.FollowRepository;
+import com.dp.vvgram.repositories.TokenRepository;
 import com.dp.vvgram.repositories.UserRepository;
 import com.dp.vvgram.security.services.JwtHelper;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -17,6 +20,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,11 +37,14 @@ public class UserServiceImpl implements UserService {
     private List<UpdateProfile> fields;
     private final FollowRepository followRepository;
     private final AuthenticationManager authenticationManager;
+    private final TokenRepository tokenRepository;
 
     public UserServiceImpl(UserRepository userRepository,
                            BCryptPasswordEncoder bCryptPasswordEncoder,
                            FollowRepository followRepository,
-                           AuthenticationManager authenticationManager) {
+                           AuthenticationManager authenticationManager,
+                           TokenRepository tokenRepository) {
+        this.tokenRepository = tokenRepository;
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.followRepository = followRepository;
@@ -67,7 +75,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public String login(String username, String password) throws UserNotFoundException, InvalidPasswordException {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        return JwtHelper.generateToken(username);
+        String token = JwtHelper.generateToken(username);
+        Token newToken = new Token();
+        newToken.setValue(token);
+        return tokenRepository.save(newToken).getValue();
     }
 
     @Override
@@ -80,8 +91,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void logout(String token) {
-        //todo: to be implemented
+    public String logout() throws AccessDeniedException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String token = authentication.getCredentials().toString();
+        JwtHelper.revokeToken(token);
+        return "User logged out successfully";
     }
 
     @Override

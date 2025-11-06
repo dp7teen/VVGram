@@ -5,6 +5,7 @@ import com.dp.vvgram.dtos.UserDto;
 import com.dp.vvgram.exceptions.*;
 import com.dp.vvgram.models.User;
 import com.dp.vvgram.profileUpdater.UpdateProfile;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ public interface UserService {
 
     User getUserProfile(String username) throws UserNotFoundException;
 
-    void logout(String token);
+    String logout() throws AccessDeniedException;
 
     User updateProfile(String user, UpdateProfileDto profile) throws UserNotFoundException;
 

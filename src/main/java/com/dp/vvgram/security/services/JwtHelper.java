@@ -1,6 +1,8 @@
 package com.dp.vvgram.security.services;
 
 import com.dp.vvgram.exceptions.AccessDeniedException;
+import com.dp.vvgram.models.Token;
+import com.dp.vvgram.repositories.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -11,6 +13,8 @@ import java.security.Key;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Optional;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +23,11 @@ public class JwtHelper {
 
     private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private static final int MINUTES = 60;
+    private static TokenRepository tokenRepository;
+
+    public JwtHelper(TokenRepository tokenRepository) {
+        JwtHelper.tokenRepository = tokenRepository;
+    }
 
     public static String generateToken(String userName) {
         var now = Instant.now();
@@ -36,7 +45,8 @@ public class JwtHelper {
 
     public static Boolean validateToken(String token, UserDetails userDetails) throws AccessDeniedException {
         final String username = extractUsername(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        Optional<Token> t = tokenRepository.findByValue(token);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token) && !isTokenRevoked(token);
     }
 
     private static Claims getTokenBody(String token) throws AccessDeniedException {
@@ -55,5 +65,24 @@ public class JwtHelper {
     private static boolean isTokenExpired(String token) throws AccessDeniedException {
         Claims claims = getTokenBody(token);
         return claims.getExpiration().before(new Date());
+    }
+
+    private static boolean isTokenRevoked(String token) throws AccessDeniedException {
+        Optional<Token> t = tokenRepository.findByValue(token);
+        if (t.isEmpty()) {
+            throw new AccessDeniedException("Token not found");
+        }
+        return t.get().isRevoked();
+    }
+
+    public static void revokeToken(String token) throws AccessDeniedException {
+        Optional<Token> t = tokenRepository.findByValueAndExpired(token, false);
+        if (t.isEmpty()) {
+            throw new AccessDeniedException("Token not found");
+        }
+        Token existingToken = t.get();
+        existingToken.setRevoked(true);
+        existingToken.setExpired(true);
+        tokenRepository.save(existingToken);
     }
 }
