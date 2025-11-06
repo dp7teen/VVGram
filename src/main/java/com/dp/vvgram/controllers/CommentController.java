@@ -8,9 +8,11 @@ import com.dp.vvgram.exceptions.PostNotFoundException;
 import com.dp.vvgram.exceptions.UserNotFoundException;
 import com.dp.vvgram.models.Comment;
 import com.dp.vvgram.services.CommentService;
+import com.dp.vvgram.utilities.PrincipalHelper;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,13 +26,13 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @PostMapping("/{postId}/{username}")
+    @PostMapping("/{postId}")
     public ResponseEntity<String> comment(@PathVariable long postId,
-                                          @PathVariable String username,
                                           @RequestBody CommentRequestDto dto) throws UserNotFoundException,
             PostNotFoundException {
+        UserDetails details = PrincipalHelper.getPrincipal();
         return new ResponseEntity<>(
-              commentService.comment(postId, username, dto),
+              commentService.comment(postId, details.getUsername(), dto),
               HttpStatus.CREATED
         );
     }
