@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -38,12 +39,15 @@ public class UserServiceImpl implements UserService {
     private final FollowRepository followRepository;
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public UserServiceImpl(UserRepository userRepository,
                            BCryptPasswordEncoder bCryptPasswordEncoder,
                            FollowRepository followRepository,
                            AuthenticationManager authenticationManager,
-                           TokenRepository tokenRepository) {
+                           TokenRepository tokenRepository,
+                           RedisTemplate<String, Object> redisTemplate) {
+        this.redisTemplate = redisTemplate;
         this.tokenRepository = tokenRepository;
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
@@ -78,6 +82,7 @@ public class UserServiceImpl implements UserService {
         String token = JwtHelper.generateToken(username);
         Token newToken = new Token();
         newToken.setValue(token);
+        redisTemplate.opsForValue().set(token, newToken);
         return tokenRepository.save(newToken).getValue();
     }
 

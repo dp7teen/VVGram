@@ -15,6 +15,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Optional;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -24,8 +25,10 @@ public class JwtHelper {
     private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private static final int MINUTES = 60;
     private static TokenRepository tokenRepository;
+    private static RedisTemplate<String, Object> redisTemplate;
 
-    public JwtHelper(TokenRepository tokenRepository) {
+    public JwtHelper(TokenRepository tokenRepository, RedisTemplate<String, Object> redisTemplate) {
+        JwtHelper.redisTemplate = redisTemplate;
         JwtHelper.tokenRepository = tokenRepository;
     }
 
@@ -68,6 +71,10 @@ public class JwtHelper {
     }
 
     private static boolean isTokenRevoked(String token) throws AccessDeniedException {
+        Token cachedToken = (Token) redisTemplate.opsForValue().get(token);
+        if (cachedToken != null) {
+            return cachedToken.isRevoked();
+        }
         Optional<Token> t = tokenRepository.findByValue(token);
         if (t.isEmpty()) {
             throw new AccessDeniedException("Token not found");
@@ -76,6 +83,12 @@ public class JwtHelper {
     }
 
     public static void revokeToken(String token) throws AccessDeniedException {
+        Token cachedToken = (Token) redisTemplate.opsForValue().get(token);
+        if (cachedToken != null) {
+            cachedToken.setRevoked(true);
+            cachedToken.setExpired(true);
+            redisTemplate.opsForValue().set(token, cachedToken);
+        }
         Optional<Token> t = tokenRepository.findByValueAndExpired(token, false);
         if (t.isEmpty()) {
             throw new AccessDeniedException("Token not found");
